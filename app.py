@@ -2,6 +2,7 @@ import json
 from flask import Flask, render_template, jsonify, request, Response, Markup
 
 import datetime
+import numpy
 import io
 from keras.models import Sequential
 from keras.layers import Conv1D, LSTM, Dense, Dropout
@@ -24,7 +25,7 @@ app = Flask(__name__, template_folder='template')
 data_pangan = pd.read_csv('data_harga_bahan_pangan_indonesia.csv')
 data_pangan.columns = data_pangan.columns.str.replace(' (kg)', '', regex=False).str.replace('(kg)', '',regex=False).str.replace(' ', '_').str.lower()
 data_pangan = data_pangan.set_index('date')
-window_size_train= 500
+window_size_train= 600
 window_size_test= 150
 window_size_val= 80
 batch_size_train=30
@@ -38,7 +39,7 @@ def home():
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict_data():
-    global types, date, predicti, dates, my_plot, my_plot_2
+    global types, date, predicti, dates, my_plot_2, date_list, predicting
 
     if request.method == "POST":
         date = request.form['date']
@@ -49,6 +50,13 @@ def predict_data():
         type = types.lower()
         start_date = datetime.datetime.today()
         end_date = datetime.datetime.strptime(date, '%Y-%m-%d')
+
+        if(end_date == start_date):
+            print(start_date)
+        elif(end_date <= start_date):
+            print('tolong isi tanggal sesudah hari ini')
+        else:
+            print('a')
 
         sector_chose = chose_sector(type)
 
@@ -65,17 +73,23 @@ def predict_data():
         # dates = pd.DataFrame(predicted, index=date_list, columns=['predict'])
         dates = pd.DataFrame(date_list, columns=['date'])
         dates['predict'] = predicted
-        print(dates)
+
+        class NumpyArrayEncoder(json.JSONEncoder):
+            def default(self, obj):
+                if isinstance(obj, numpy.ndarray):
+                    return obj.tolist()
+                return json.JSONEncoder.default(self, obj)
+
+        predicting = json.dumps(predicted)
+        print(predicting)
 
         fig = px.scatter(dates, x='date', y='predict')
 
         my_plot_2 = json.dumps(fig, cls= plotly.utils.PlotlyJSONEncoder)
-        print(my_plot_2)
 
         return render_template('index.html')
     else:
-        return jsonify({"predict": predicti, "jenis_bahan": types, "date": date, "message": "200", "plot": my_plot_2})
-
+        return jsonify({"predict": predicti, "jenis_bahan": types, "date": date, "message": "200"})
 
 def time_step_generator(data, time_size, batch_size, shuffle_data):
     generate_data = tf.data.Dataset.from_tensor_slices(data)
@@ -240,6 +254,9 @@ def figures():
     ax.plot(dates.date, dates.predict.round())
     return fig
 
+@app.route('/info')
+def info():
+    return (render_template('popups.html'))
 
 if __name__ == '__main__':
     app.run(debug=True)
