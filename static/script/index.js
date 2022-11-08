@@ -8,33 +8,46 @@ button_predict.addEventListener("click", () => {
     const data = document.querySelector('#jenis_data_pangan');
     const date = document.querySelector(".date_end");
     const xhr = new XMLHttpRequest();
+    console.log(date)
+    console.log(Date.now())
 
-    xhr.onloadstart= () => {
-        document.querySelector('.loader').style.display ='block'
-        input_bahan.disabled = true
-        input_date.disabled = true
-        document.querySelector("#btn_submit").disabled = true
+    const timelapse = Date.now()
+    const today = new Date(timelapse)
+    console.log(today)
+
+    if (input_bahan.value== '' || input_date.value == ''){
+        alert('fill bahan')
     }
-
-    xhr.onloadend = () => {
-        document.querySelector('.loader').style.display= 'none'
-        input_bahan.disabled = false
-        input_date.disabled = false
-        input_bahan.value = ""
-        input_date.value = ""
-        document.querySelector("#btn_submit").disabled = false
+    else if(input_date.value == Date.now() || input_date.value == Date.now()){
+        alert('isi tanggal setelah hari ini')
     }
-
-    xhr.onreadystatechange = () =>{
-        if (xhr.readyState == 4){
-            getData()
+    else{
+        xhr.onloadstart= () => {
+            document.querySelector('.spiner-page').style.display ='block'
+            input_bahan.disabled = true
+            input_date.disabled = true
+            document.querySelector("#btn_submit").disabled = true
         }
+    
+        xhr.onloadend = () => {
+            document.querySelector('.spiner-page').style.display= 'none'
+            input_bahan.disabled = false
+            input_date.disabled = false
+            input_bahan.value = ""
+            input_date.value = ""
+            document.querySelector("#btn_submit").disabled = false
+        }
+    
+        xhr.onreadystatechange = () =>{
+            if (xhr.readyState == 4){
+                getData()
+            }
+        }
+    
+        xhr.open('POST', '/predict', true)
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded;charset=UTF-8')
+        xhr.send('bahan='+data.value+'&date='+date.value)
     }
-
-    xhr.open('POST', '/predict', true)
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded;charset=UTF-8')
-    xhr.send('bahan='+data.value+'&date='+date.value)
-
 })
 
 const getData = () => {
@@ -62,11 +75,7 @@ const rendervalue =(msg) => {
             <h2>Hasil Prediksi</h2>
             <img src="/plot" alt="plot predict">
             <div id='chart'></div>
-            <script>
-                var graphs = ${msg.plot}
-                Plotly.plot('chart', graphs, {})
-            </script>
-            <p>
+            
             <div class="line"></div>
             <p>Prediksi harga ${msg.jenis_bahan}</p>
             <p id="value">
