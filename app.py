@@ -36,11 +36,13 @@ num_shuffle=1000
 def home():
     return render_template('index.html')
 
+@app.route('/info', methods=['GET', 'POST'])
+def info():
+    return render_template('info.html')
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict_data():
-    global types, date, predicti, dates, my_plot_2, date_list, predicting
-
+    global types, date, predicti, dates, my_plot_2, date_list
     if request.method == "POST":
         date = request.form['date']
         types = request.form['bahan']
@@ -79,9 +81,6 @@ def predict_data():
                 if isinstance(obj, numpy.ndarray):
                     return obj.tolist()
                 return json.JSONEncoder.default(self, obj)
-
-        predicting = json.dumps(predicted)
-        print(predicting)
 
         fig = px.scatter(dates, x='date', y='predict')
 
@@ -192,7 +191,7 @@ def make_prediction(train, test, val, date_start, date_end):
         Dense(1)
     ])
 
-    model.compile(tf.keras.optimizers.Adam(learning_rate=1e-3), loss='mse', metrics=['mape', 'mae'])
+    model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=1e-4, momentum=0.9), loss='mse', metrics=['mae', 'mape'])
     history = model.fit(data_train, epochs=5, verbose=1, validation_data=data_val)
     mae = history.history['mae']
     mape = history.history['mape']
@@ -238,7 +237,7 @@ def make_prediction(train, test, val, date_start, date_end):
     return output
 
 
-plt.rcParams["figure.figsize"] = [7, 3.50]
+plt.rcParams["figure.figsize"] = [10, 5]
 plt.rcParams["figure.autolayout"] = True    
 
 @app.route('/plot')   
@@ -251,12 +250,10 @@ def make_plot():
 def figures():
     fig = Figure()
     ax = fig.add_subplot(1, 1, 1)
-    ax.plot(dates.date, dates.predict.round())
+    ax.plot(dates.date, dates.predict.round(), '-o', color='#23CE6B')
+    ax.set_xlabel('tanggal')
+    ax.set_ylabel('harga')
     return fig
-
-@app.route('/info')
-def info():
-    return (render_template('popups.html'))
 
 if __name__ == '__main__':
     app.run(debug=True)
