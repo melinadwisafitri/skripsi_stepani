@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
     
 </head>
-<body>
+<body id="home">
     <div class="spiner-page">
         <div class="spiner-container">
             <div class="spiner"></div>
@@ -22,21 +22,28 @@
     </div>
     <header>
         <nav class="navbar">
-            <li><a href="/">Home</a></li>
-            <li><a href="/info">About</a></li>
+            <div class="logo">
+                <img src="/static/logo.svg" alt="">
+            </div>
+            <ul class="ul-list">
+                <li><a href="/" id="default_open">Beranda</a></li>
+                <li><a href="/info">Info</a></li>
+            </ul>
+            <div class="menu-switch">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </nav>
-        <h1>Sistem prediksi Harga Bahan Pangan Indonesia</h1>
     </header>
     <main>
-            <div class="card">
+        <div class="card">
                 <div class="card_1">
                     <div class="input_data">
                         <label for="data_pangan">Jenis Bahan Pangan</label>
                         <input list="data_pangan" name="data_pangan" id="jenis_data_pangan" placeholder="pilih salah satu" required>
                         <datalist id="data_pangan">
-                            <option value="Bawang Merah"></option>
                             <option value="Bawang Merah Ukuran Sedang"></option>
-                            <option value="Bawang Putih"></option>
                             <option value="Bawang Putih Ukuran Sedang"></option>
                             <option value="Beras"></option>
                             <option value="Beras Kualitas Bawah 1"></option>
@@ -45,9 +52,7 @@
                             <option value="Beras Kualitas Medium 2"></option>
                             <option value="Beras Kualitas Super 1"></option>
                             <option value="Beras Kualitas Super 2"></option>
-                            <option value="Daging Ayam"></option>
                             <option value="Daging Ayam Ras Segar"></option>
-                            <option value="Daging Sapi"></option>
                             <option value="Daging Sapi Kualitas 1"></option>
                             <option value="Daging Sapi Kualitas 1"></option>
                             <option value="Cabai Rawit"></option>
@@ -63,7 +68,6 @@
                             <option value="Minyak Goreng Curah"></option>
                             <option value="Minyak Goreng Kemasan Bermerk 1"></option>
                             <option value="Minyak Goreng Kemasan Bermerk 1"></option>
-                            <option value="Telur Ayam"></option>
                             <option value="Telur Ayam Ras Segar"></option>
                         </datalist>
                     </div>
@@ -78,9 +82,7 @@
             </div>
         <div class="value"></div>
 
-
         <script src="../static/script/index.js" type="text/javascript"></script>
-        
         <section class="card">
         </section>
         
